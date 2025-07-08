@@ -35,11 +35,11 @@ func UpdateUsers(w http.ResponseWriter, r *http.Request){
 			var user models.User
 			json.NewDecoder(r.Body).Decode(&user)
 			users[i]=user
+			json.NewEncoder(w).Encode(user)
 			return
 		}
 	}
-	var user models.User
-	json.NewDecoder(r.Body).Decode(&user)
+	http.Error(w, "User not found", http.StatusNotFound)
 }
 
 func GetUserByID(w http.ResponseWriter, r *http.Request){
