@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -22,15 +21,15 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	var users []models.User 
+	var users []models.User
 	for rows.Next() {
 		var u models.User
 		if err := rows.Scan(&u.ID, &u.Name, &u.Mobile, &u.Email); err != nil {
-			http.Error(w,"Error while fetching data", http.StatusInternalServerError)
+			http.Error(w, "Error while fetching data", http.StatusInternalServerError)
 		}
 		users = append(users, u)
 	}
-	
+
 	json.NewEncoder(w).Encode(users)
 }
 
@@ -41,12 +40,23 @@ func CreateUsers(w http.ResponseWriter, r *http.Request) {
 	result, err := db.DB.Exec(sqlStmt, u.Name, u.Mobile, u.Email)
 	if err != nil {
 
-		if strings.Contains(err.Error(),"UNIQUE constraint failed") {
-			parts := strings.Split(err.Error(),".")
-			log.Println(parts)
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			parts := strings.Split(err.Error(), ".")
+			field := parts[1]
+			switch field {
+			case "email":
+				http.Error(w, "Email already registered", http.StatusInternalServerError)
+				return
+			case "mobile":
+				http.Error(w, "Mobile number already registered", http.StatusInternalServerError)
+				return
+			default:
+				http.Error(w, "Details already registered", http.StatusInternalServerError)
+				return
+			}
 		}
 
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Unable to create user", http.StatusInternalServerError)
 		return
 	}
 	id, _ := result.LastInsertId()
