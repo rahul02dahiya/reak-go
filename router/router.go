@@ -7,9 +7,10 @@ import (
 
 func SetupRouter() *mux.Router{
 	r := mux.NewRouter()
-	r.HandleFunc("/users",handlers.GetUsers).Methods("GET")
-	r.HandleFunc("/users",handlers.CreateUsers).Methods("POST")
-	r.HandleFunc("/users/{id}",handlers.UpdateUsers).Methods("PUT")
-	r.HandleFunc("/users/{id}",handlers.DeleteUsers).Methods("DELETE")
+	r.HandleFunc("/api/users",handlers.GetUsers).Methods("GET")
+	r.HandleFunc("/api/users/{id}",handlers.GetUserByID).Methods("GET")
+	r.HandleFunc("/api/users",handlers.CreateUsers).Methods("POST")
+	r.HandleFunc("/api/users/{id}",handlers.UpdateUsers).Methods("PUT")
+	r.HandleFunc("/api/users/{id}",handlers.DeleteUsers).Methods("DELETE")
 	return r
 }
